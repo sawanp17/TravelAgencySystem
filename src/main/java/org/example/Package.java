@@ -15,7 +15,13 @@ public class Package {
     Itenerary itenerary;
     List<Passenger> passengerList = new ArrayList<>();
 
-
+    boolean register(Passenger passenger){
+        if (this.getPassengerList().size() >= this.getPassengerCapacity()){
+            return false;
+        }
+        this.passengerList.add(passenger);
+        return true;
+    }
 
     void printPackage(){
         System.out.println(

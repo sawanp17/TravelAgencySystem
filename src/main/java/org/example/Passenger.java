@@ -1,6 +1,5 @@
 package org.example;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +14,8 @@ public class Passenger {
     private int passengerNumber;
     private Membership membership;
     private float balance;
-    List<Registration> registrationList = new ArrayList<>();
+    List<ActivityRegistration> activityRegistrationList = new ArrayList<>();
+    List<Package> packageRegistered = new ArrayList<>();
 
     public Passenger(String name, int passengerNumber, Membership membership, float balance) {
         this.name = name;
@@ -24,23 +24,43 @@ public class Passenger {
         this.balance = balance;
     }
 
-    public boolean register(Activity activity){
+    public boolean register(Activity activity, Destination destination){
+        if (! DestinationActivityMap.getListOfActivities(destination).contains(activity)){
+            System.out.println(">>> Activity not found at this location");
+            return false;
+        }
         if (!membership.getName().equals("PREMIUM")){
             float discountedPrice = membership.getDiscountedPrice(activity.cost);
             if (discountedPrice > balance || activity.getRegistrationList().size() >= activity.getCapacity()){
-                System.out.println("Not enough balance OR Activity Limit Reached");
+                System.out.println(">>> Not enough balance OR Activity Limit Reached");
                 return false;
             }
             else {
                 this.balance = this.balance - discountedPrice;
             }
         }
-        Registration registration =  registrationService.makeRegistration(activity,this);
-        this.registrationList.add(registration);
+        ActivityRegistration activityRegistration =  registrationService.makeActivityRegistration(activity,destination,this, getMembership().getDiscountedPrice(activity.getCost()));
+        this.activityRegistrationList.add(activityRegistration);
 
         //return if activity confirms registration
-        boolean ans =  activity.register(registration);
+        boolean ans =  activity.register(activityRegistration);
+        if (!ans){
+            this.activityRegistrationList.remove(activityRegistration);
+        }
         return ans;
+    }
+
+    boolean registerPackage(Package p){
+        if (p.getPassengerList().size() >= p.getPassengerCapacity()){
+            return false;
+        }
+        this.packageRegistered.add(p);
+        boolean confirmation =  p.register(this);
+        if (!confirmation){
+            this.packageRegistered.remove(p);
+        }
+        return confirmation;
+
     }
 
     void printPassengerInfo(){
@@ -50,8 +70,8 @@ public class Passenger {
         String balanceText = membershipName.equals("PREMIUM") ? "N/A" : " " + this.getBalance();
         System.out.println("Balance: " + balanceText);
         System.out.println("Activities Enrolled: ");
-        for (Registration registration: registrationList){
-            System.out.println(registration.getActivity().getName() + " at Desitination: " + registration.getActivity());
+        for (ActivityRegistration activityRegistration : activityRegistrationList){
+            System.out.println(activityRegistration.getActivity().getName() + " at Desitination: " + activityRegistration.getDestination().getName() + " at Price " + activityRegistration.getPricePaid());
         }
     }
 
@@ -87,12 +107,12 @@ public class Passenger {
         this.balance = balance;
     }
 
-    public List<Registration> getRegistrationList() {
-        return registrationList;
+    public List<ActivityRegistration> getRegistrationList() {
+        return activityRegistrationList;
     }
 
-    public void setRegistrationList(List<Registration> registrationList) {
-        this.registrationList = registrationList;
+    public void setRegistrationList(List<ActivityRegistration> activityRegistrationList) {
+        this.activityRegistrationList = activityRegistrationList;
     }
 
     public RegistrationService getRegistrationService() {

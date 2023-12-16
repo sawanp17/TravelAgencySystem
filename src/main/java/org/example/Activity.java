@@ -1,6 +1,5 @@
 package org.example;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,11 +13,11 @@ public class Activity {
     public String desciption;
     public float cost;
     public int capacity;
-    private List<Registration> registrationList = new ArrayList<>();
+    private List<ActivityRegistration> activityRegistrationList = new ArrayList<>();
 
-    public Activity(String name, String desciption, float cost, int capacity) {
+    public Activity(String name, String description, float cost, int capacity) {
         this.name = name;
-        this.desciption = desciption;
+        this.desciption = description;
         this.cost = cost;
         this.capacity = capacity;
     }
@@ -27,17 +26,17 @@ public class Activity {
         System.out.println(this.name);
         System.out.println("Cost: " + this.cost);
         System.out.println("Capacity: " + this.capacity);
-        System.out.println(this.desciption);
+        System.out.println("Description" + this.desciption);
     }
 
-    public boolean register(Registration registration){
+    public boolean register(ActivityRegistration activityRegistration){
 //        System.out.println("size in function call " + this.getRegistrationList().size());
 
         //double-checking for avoiding inconsistencies
         if (this.getRegistrationList().size() >= this.getCapacity()){
             return false;
         }
-        this.registrationList.add(registration);
+        this.activityRegistrationList.add(activityRegistration);
         return true;
     }
 
@@ -73,11 +72,11 @@ public class Activity {
         this.capacity = capacity;
     }
 
-    public List<Registration> getRegistrationList() {
-        return registrationList;
+    public List<ActivityRegistration> getRegistrationList() {
+        return activityRegistrationList;
     }
 
-    public void setRegistrationList(List<Registration> registrationList) {
-        this.registrationList = registrationList;
+    public void setRegistrationList(List<ActivityRegistration> activityRegistrationList) {
+        this.activityRegistrationList = activityRegistrationList;
     }
 }
